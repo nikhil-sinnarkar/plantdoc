@@ -51,6 +51,7 @@ def generator(csv_data, batch_size = 28):
             for data in batch_data:
                 image_path = './data/' + data[0]
                 img = imresize(imread(image_path, mode='RGB'), (224, 224)).astype(np.float32)
+                img = img.transpose((2, 0, 1))
                 images.append(img)
                 labels.append(int(data[2]))
 
@@ -65,7 +66,7 @@ validation_generator = generator(validation_data, batch_size=32)
 #########################################################################################
 
 
-ttened_layer = googlenet.get_layer('flatten_3').output
+flattened_layer = googlenet.get_layer('flatten_3').output
 fc_1 = Dense(512, activation='relu', name='fc_1')(flattened_layer)
 output = Dense(num_classes, activation='softmax', name='output')(fc_1)
 
