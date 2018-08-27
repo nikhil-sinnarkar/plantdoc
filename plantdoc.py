@@ -65,5 +65,22 @@ validation_generator = generator(validation_data, batch_size=32)
 #########################################################################################
 
 
+ttened_layer = googlenet.get_layer('flatten_3').output
+fc_1 = Dense(512, activation='relu', name='fc_1')(flattened_layer)
+output = Dense(num_classes, activation='softmax', name='output')(fc_1)
 
+image_input = googlenet.get_layer('input_1').input
+my_googlenet = Model(image_input, output)
+
+for layer in my_googlenet.layers[:-2]:
+    layer.trainable = False
+
+my_googlenet.compile(loss='categorical_crossentropy',optimizer='sgd',metrics=['accuracy'])
+
+t=time.time()
+hist = my_googlenet.fit_generator(generator(train_data), steps_per_epoch = len(train_data)//28, epochs = 1, validation_data=generator(validation_data), validation_steps=len(validation_data)//28)
+print('Training time: %s' % (t - time.time()))
+(loss, accuracy) = my_googlenet.evaluate(X_test, y_test, batch_size=10, verbose=1)
+
+print("[INFO] loss={:.4f}, accuracy: {:.4f}%".format(loss,accuracy * 100))
 
